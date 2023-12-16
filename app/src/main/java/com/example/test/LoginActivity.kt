@@ -4,9 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -14,15 +15,14 @@ import kotlinx.coroutines.launch
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
-import android.util.Log
-import android.widget.TextView
-import java.security.KeyManagementException
-import java.security.NoSuchAlgorithmException
+import java.security.KeyStore
 import java.security.SecureRandom
-import javax.net.ssl.HttpsURLConnection
+import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -52,8 +52,7 @@ class LoginActivity : AppCompatActivity() {
             if (username.isEmpty() || password.isEmpty()) {
                 // Display an error message
                 errorEditText.text = "Username or password cannot be empty"
-            }
-            else{
+            } else {
                 errorEditText.text = ""
                 makeLoginRequest(username, password)
             }
@@ -61,9 +60,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun makeLoginRequest(username: String, password: String) {
-        val url = "https://10.0.2.2/login"
+        val url = "http://192.168.50.205/api/docs"
 
-        val client = OkHttpClient();
+        val client = OkHttpClient.Builder().build()
 
         val requestBody = FormBody.Builder()
             .add("username", username)
@@ -75,40 +74,29 @@ class LoginActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        // Use coroutines for asynchronous networking
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
+        try {
+            GlobalScope.launch(Dispatchers.IO) {
+
                 val response = client.newCall(request).execute()
 
                 if (response.isSuccessful) {
-                    // Use the safe call operator ?. to handle nullability
-                    SSLUtils.disableSSLCertificateChecking()
                     val responseBody = response.body()?.string()
 
-                    // Check if the response body is not null before proceeding
                     if (!responseBody.isNullOrBlank()) {
                         val json = JSONObject(responseBody)
-                        val token = json.getString("jwt_token")
+                        val token = json.getString("token")
 
-                        // Save the token as needed (e.g., in SharedPreferences)
                         saveToken(token)
-
-                        // Perform any additional actions with the token or navigate to the next screen
-                        // Once the token is saved, you can navigate the user to the main activity
                         navigateToMainActivity()
                     } else {
-                        // Handle the case where the response body is null or blank
-                        // ...
                         errorEditText.text = "No response"
                     }
                 } else {
-                    // Handle unsuccessful response
-                    // ...
                     errorEditText.text = "Error response"
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
             }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
@@ -124,32 +112,4 @@ class LoginActivity : AppCompatActivity() {
         startActivity(intent)
         finish() // Optional: finish the current activity if you don't want users to navigate back to it using the back button
     }
-
-    object SSLUtils {
-        fun disableSSLCertificateChecking() {
-            try {
-                val trustAllCerts = arrayOf<TrustManager>(
-                    object : X509TrustManager {
-                        override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
-
-                        override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
-
-                        override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> {
-                            return arrayOf()
-                        }
-                    }
-                )
-
-                val sc = SSLContext.getInstance("SSL")
-                sc.init(null, trustAllCerts, SecureRandom())
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.socketFactory)
-                HttpsURLConnection.setDefaultHostnameVerifier { _, _ -> true }
-            } catch (e: KeyManagementException) {
-                e.printStackTrace()
-            } catch (e: NoSuchAlgorithmException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
 }
