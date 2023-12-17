@@ -60,22 +60,12 @@ class LoginActivity : AppCompatActivity() {
     private fun makeLoginRequest(username: String, password: String) {
         val url = "http://10.0.2.2:8000/login"
 
-        val connectTimeout = 10000L // 10 seconds
-        val readTimeout = 10000L // 10 seconds
+        val connectTimeout = 30000L // 30 seconds
+        val readTimeout = 30000L // 30 seconds
 
         val client = OkHttpClient.Builder()
             .connectTimeout(connectTimeout, java.util.concurrent.TimeUnit.MILLISECONDS)
             .readTimeout(readTimeout, java.util.concurrent.TimeUnit.MILLISECONDS).build()
-
-//        val requestBody = FormBody.Builder()
-//            .add("email", username)
-//            .add("password", password)
-//            .build()
-//
-//        val request = Request.Builder()
-//            .url(url)
-//            .post(requestBody)
-//            .build()
 
         // Request Body
         val mediaType = MediaType.parse("application/json")
@@ -107,17 +97,6 @@ class LoginActivity : AppCompatActivity() {
                         errorEditText.text = "No response "
                     }
                 } else {
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", "RESPONSE")
-                    Log.v("Tag", response.toString())
-                    Log.v("Tag", response.message())
-                    Log.v("Tag", response.body().toString())
                     errorEditText.text = "Error response"
                 }
             }

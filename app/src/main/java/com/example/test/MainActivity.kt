@@ -1,11 +1,29 @@
 package com.example.test
 
+import PasswordAdapter
+import PasswordItem
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val passwordList = listOf(
+            PasswordItem("Password 1", "your_password_1"),
+            PasswordItem("Password 2", "your_password_2"),
+            // Add more password items as needed
+        )
+
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+
+        val adapter = PasswordAdapter(passwordList)
+        recyclerView.adapter = adapter
     }
 }
