@@ -33,8 +33,6 @@ class LoginActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.v("Tag", "ON CREATE LOGIN")
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
@@ -60,18 +58,35 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun makeLoginRequest(username: String, password: String) {
-        val url = "http://192.168.50.205/api/docs"
+        val url = "http://10.0.2.2:8000/login"
 
-        val client = OkHttpClient.Builder().build()
+        val connectTimeout = 10000L // 10 seconds
+        val readTimeout = 10000L // 10 seconds
 
-        val requestBody = FormBody.Builder()
-            .add("username", username)
-            .add("password", password)
-            .build()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(connectTimeout, java.util.concurrent.TimeUnit.MILLISECONDS)
+            .readTimeout(readTimeout, java.util.concurrent.TimeUnit.MILLISECONDS).build()
 
+//        val requestBody = FormBody.Builder()
+//            .add("email", username)
+//            .add("password", password)
+//            .build()
+//
+//        val request = Request.Builder()
+//            .url(url)
+//            .post(requestBody)
+//            .build()
+
+        // Request Body
+        val mediaType = MediaType.parse("application/json")
+        val requestBody = RequestBody.create(mediaType, "{\"email\":\"$username\",\"password\":\"$password\"}")
+
+        // HTTP Request
         val request = Request.Builder()
             .url(url)
             .post(requestBody)
+            .addHeader("accept", "application/json")
+            .addHeader("Content-Type", "application/json")
             .build()
 
         try {
@@ -89,9 +104,20 @@ class LoginActivity : AppCompatActivity() {
                         saveToken(token)
                         navigateToMainActivity()
                     } else {
-                        errorEditText.text = "No response"
+                        errorEditText.text = "No response "
                     }
                 } else {
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", "RESPONSE")
+                    Log.v("Tag", response.toString())
+                    Log.v("Tag", response.message())
+                    Log.v("Tag", response.body().toString())
                     errorEditText.text = "Error response"
                 }
             }
