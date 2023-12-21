@@ -28,7 +28,6 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
     private lateinit var errorEditText: TextView
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

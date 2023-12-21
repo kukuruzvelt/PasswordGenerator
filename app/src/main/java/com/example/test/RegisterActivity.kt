@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -12,59 +11,52 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.*
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.json.JSONObject
 import java.io.IOException
-import java.security.KeyStore
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.TrustManagerFactory
-import javax.net.ssl.X509TrustManager
 
-
-class LoginActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
 
     private lateinit var usernameEditText: EditText
     private lateinit var passwordEditText: EditText
+    private lateinit var initialsEditText: EditText
     private lateinit var errorEditText: TextView
-    private lateinit var loginButton: Button
-    private lateinit var registerTextView: TextView
+    private lateinit var registerButton: Button
 
     @SuppressLint("SetTextI18n", "MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_register)
 
         // Initialize UI elements
         usernameEditText = findViewById(R.id.editTextUsername)
+        initialsEditText = findViewById(R.id.editTextInitials)
         passwordEditText = findViewById(R.id.editTextPassword)
         errorEditText = findViewById(R.id.textViewError)
-        loginButton = findViewById(R.id.buttonLogin)
-        registerTextView = findViewById(R.id.textViewRegister)
+        registerButton = findViewById(R.id.buttonRegister)
 
-        registerTextView.setOnClickListener {
-            navigateToRegisterActivity()
-        }
 
         // Set click listener for the login button
-        loginButton.setOnClickListener {
+        registerButton.setOnClickListener {
             val username = usernameEditText.text.toString()
+            val initials = initialsEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (username.isEmpty() || password.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty() || initials.isEmpty()) {
                 // Display an error message
-                errorEditText.text = "Username or password cannot be empty"
+                errorEditText.text = "Username, initials or password cannot be empty"
             } else {
                 errorEditText.text = ""
-                makeLoginRequest(username, password)
+                makeRegisterRequest(username, password, initials)
             }
         }
     }
 
-    private fun makeLoginRequest(username: String, password: String) {
-        val url = "http://10.0.2.2:8000/login"
+    private fun makeRegisterRequest(username: String, password: String, initials: String) {
+        val url = "http://10.0.2.2:8000/api/register"
 
         val connectTimeout = 30000L // 30 seconds
         val readTimeout = 30000L // 30 seconds
@@ -75,7 +67,10 @@ class LoginActivity : AppCompatActivity() {
 
         // Request Body
         val mediaType = MediaType.parse("application/json")
-        val requestBody = RequestBody.create(mediaType, "{\"email\":\"$username\",\"password\":\"$password\"}")
+        val requestBody = RequestBody.create(
+            mediaType,
+            "{\"email\":\"$username\",\"initials\":\"$initials\",\"password\":\"$password\"}"
+        )
 
         // HTTP Request
         val request = Request.Builder()
@@ -91,17 +86,7 @@ class LoginActivity : AppCompatActivity() {
                 val response = client.newCall(request).execute()
 
                 if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
-
-                    if (!responseBody.isNullOrBlank()) {
-                        val json = JSONObject(responseBody)
-                        val token = json.getString("token")
-
-                        saveToken(token)
-                        navigateToMainActivity()
-                    } else {
-                        errorEditText.text = "No response "
-                    }
+                    navigateToLoginActivity()
                 } else {
                     errorEditText.text = "Error response"
                 }
@@ -111,21 +96,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToken(token: String) {
-        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("jwt_token", token)
-        editor.apply()
-    }
-
-    private fun navigateToMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish() // Optional: finish the current activity if you don't want users to navigate back to it using the back button
-    }
-
-    private fun navigateToRegisterActivity() {
-        val intent = Intent(this, RegisterActivity::class.java)
+    private fun navigateToLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish() // Optional: finish the current activity if you don't want users to navigate back to it using the back button
     }
