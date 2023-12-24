@@ -21,28 +21,15 @@
         tools:ignore="TextFields" />
 
     <EditText
-        android:id="@+id/editTextInitials"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="72dp"
-        android:autofillHints=""
-        android:hint="Initials"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="TextFields" />
-
-    <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="16dp"
         android:autofillHints=""
         android:hint="Password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextUsername" />
 

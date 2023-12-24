@@ -4,6 +4,7 @@ import PasswordAdapter
 import PasswordItem
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.Dispatchers
@@ -27,17 +29,24 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private lateinit var errorEditText: TextView
+    private lateinit var fabCreatePassword: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         errorEditText = findViewById(R.id.passListError)
+        fabCreatePassword = findViewById(R.id.fabCreatePassword)
+
+        fabCreatePassword.setOnClickListener {
+            navigateToGeneratingPassword()
+        }
 
         lifecycleScope.launch {
             var passwordList = getPasswords()
 
             val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
-            val layoutManager = LinearLayoutManager(this@MainActivity) // Replace with your actual activity name
+            val layoutManager =
+                LinearLayoutManager(this@MainActivity) // Replace with your actual activity name
             recyclerView.layoutManager = layoutManager
 
             val adapter = PasswordAdapter(passwordList)
@@ -118,5 +127,10 @@ class MainActivity : AppCompatActivity() {
     private fun getAccessToken(): String? {
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("jwt_token", null)
+    }
+
+    private fun navigateToGeneratingPassword() {
+        val intent = Intent(this, GeneratePasswordActivity::class.java)
+        startActivity(intent)
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="algorithms">
+        <item>Random</item>
+        <item>Pronounceable</item>
+        <item>Numbers</item>
+    </string-array>
+</resources>

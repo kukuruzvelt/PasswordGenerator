@@ -17,12 +17,12 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.json.JSONObject
 import java.io.IOException
+import android.util.Log
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var usernameEditText: EditText
     private lateinit var passwordEditText: EditText
-    private lateinit var initialsEditText: EditText
     private lateinit var errorEditText: TextView
     private lateinit var registerButton: Button
 
@@ -33,7 +33,6 @@ class RegisterActivity : AppCompatActivity() {
 
         // Initialize UI elements
         usernameEditText = findViewById(R.id.editTextUsername)
-        initialsEditText = findViewById(R.id.editTextInitials)
         passwordEditText = findViewById(R.id.editTextPassword)
         errorEditText = findViewById(R.id.textViewError)
         registerButton = findViewById(R.id.buttonRegister)
@@ -42,20 +41,19 @@ class RegisterActivity : AppCompatActivity() {
         // Set click listener for the login button
         registerButton.setOnClickListener {
             val username = usernameEditText.text.toString()
-            val initials = initialsEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (username.isEmpty() || password.isEmpty() || initials.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty()) {
                 // Display an error message
                 errorEditText.text = "Username, initials or password cannot be empty"
             } else {
                 errorEditText.text = ""
-                makeRegisterRequest(username, password, initials)
+                makeRegisterRequest(username, password)
             }
         }
     }
 
-    private fun makeRegisterRequest(username: String, password: String, initials: String) {
+    private fun makeRegisterRequest(username: String, password: String) {
         val url = "http://10.0.2.2:8000/api/register"
 
         val connectTimeout = 30000L // 30 seconds
@@ -69,7 +67,7 @@ class RegisterActivity : AppCompatActivity() {
         val mediaType = MediaType.parse("application/json")
         val requestBody = RequestBody.create(
             mediaType,
-            "{\"email\":\"$username\",\"initials\":\"$initials\",\"password\":\"$password\"}"
+            "{\"email\":\"$username\",\"password\":\"$password\"}"
         )
 
         // HTTP Request
@@ -84,6 +82,13 @@ class RegisterActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.IO) {
 
                 val response = client.newCall(request).execute()
+
+                Log.v("Yag", "RESPONSE")
+                Log.v("Yag", "RESPONSE")
+                Log.v("Yag", "RESPONSE")
+                Log.v("Yag", "RESPONSE")
+                Log.v("Yag", "RESPONSE")
+                Log.v("Yag", response.toString())
 
                 if (response.isSuccessful) {
                     navigateToLoginActivity()
