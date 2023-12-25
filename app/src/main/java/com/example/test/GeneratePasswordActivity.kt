@@ -1,11 +1,24 @@
 package com.example.test
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import org.json.JSONObject
+import java.io.IOException
 
-class GeneratePasswordActivity  : AppCompatActivity() {
+class GeneratePasswordActivity : AppCompatActivity() {
 
     private lateinit var algorithmSpinner: Spinner
     private lateinit var passwordNameEditText: EditText
@@ -16,11 +29,14 @@ class GeneratePasswordActivity  : AppCompatActivity() {
     private lateinit var includeNumbersCheckbox: CheckBox
     private lateinit var includeSpecialCharsCheckbox: CheckBox
     private lateinit var generatePasswordButton: Button
+    private lateinit var textViewError: TextView
+    private lateinit var algorithmName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_password)
 
+        textViewError = findViewById(R.id.textViewError)
         algorithmSpinner = findViewById(R.id.algorithmSpinner)
         passwordNameEditText = findViewById(R.id.passwordNameEditText)
         passwordLengthSeekBar = findViewById(R.id.passwordLengthSeekBar)
@@ -32,7 +48,12 @@ class GeneratePasswordActivity  : AppCompatActivity() {
         generatePasswordButton = findViewById(R.id.generatePasswordButton)
 
         algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
                 handleAlgorithmSelection(position)
             }
 
@@ -51,18 +72,23 @@ class GeneratePasswordActivity  : AppCompatActivity() {
         when (position) {
             0 -> { // Random algorithm
                 setVisibilityForOptions(View.VISIBLE)
+                algorithmName = "random"
             }
+
             1 -> { // Pronounceable algorithm
                 setVisibilityForOptions(View.VISIBLE)
                 includeNumbersCheckbox.visibility = View.GONE
                 includeSpecialCharsCheckbox.visibility = View.GONE
+                algorithmName = "pronounceable"
             }
+
             2 -> { // Numbers algorithm
                 setVisibilityForOptions(View.VISIBLE)
                 includeNumbersCheckbox.visibility = View.GONE
                 includeUppercaseCheckbox.visibility = View.GONE
                 includeLowercaseCheckbox.visibility = View.GONE
                 includeSpecialCharsCheckbox.visibility = View.GONE
+                algorithmName = "numbers"
             }
         }
     }
@@ -77,17 +103,70 @@ class GeneratePasswordActivity  : AppCompatActivity() {
     }
 
     private fun generatePassword() {
-        // Implement password generation logic based on selected options
         val passwordName = passwordNameEditText.text.toString()
-        val passwordLength = passwordLengthSeekBar.progress + 4 // Adjusted to match the range 4 to 50
+        val passwordLength =
+            passwordLengthSeekBar.progress + 4 // Adjusted to match the range 4 to 50
         val includeUppercase = includeUppercaseCheckbox.isChecked
         val includeLowercase = includeLowercaseCheckbox.isChecked
         val includeNumbers = includeNumbersCheckbox.isChecked
         val includeSpecialChars = includeSpecialCharsCheckbox.isChecked
 
-        // Add your password generation logic here, using the selected options
-        // For now, let's display a toast message with the generated password details
-        val generatedPassword = "Generated password for $passwordName with length $passwordLength"
-        Toast.makeText(this, generatedPassword, Toast.LENGTH_SHORT).show()
+        val url = "http://10.0.2.2:8000/api/create-password"
+
+        val connectTimeout = 30000L // 30 seconds
+        val readTimeout = 30000L // 30 seconds
+
+        val client = OkHttpClient.Builder()
+            .connectTimeout(connectTimeout, java.util.concurrent.TimeUnit.MILLISECONDS)
+            .readTimeout(readTimeout, java.util.concurrent.TimeUnit.MILLISECONDS).build()
+
+        // Request Body
+        val mediaType = MediaType.parse("application/json")
+        val requestBody = RequestBody.create(
+            mediaType,
+            "{\"name\":\"$passwordName\",\"algorithm\":\"$algorithmName\",\"length\":\"$passwordLength\"" +
+                    ",\"includeUppercase\":\"$includeUppercase\",\"includeLowercase\":\"$includeLowercase\"," +
+                    "\"includeNumbers\":\"$includeNumbers\",\"includeSpecialChars\":\"$includeSpecialChars\"}"
+        )
+
+        // HTTP Request
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .addHeader("accept", "application/json")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Authorization", "Bearer " + getAccessToken())
+            .build()
+
+        try {
+            GlobalScope.launch(Dispatchers.IO) {
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body()?.string()
+
+                    if (!responseBody.isNullOrBlank()) {
+                        navigateToMainActivity()
+                    } else {
+                        textViewError.text = "No response "
+                    }
+                } else {
+                    textViewError.text = "Error response"
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getAccessToken(): String? {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("jwt_token", null)
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish() // Optional: finish the current activity if you don't want users to navigate back to it using the back button
     }
 }

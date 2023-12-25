@@ -26,7 +26,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var errorEditText: TextView
     private lateinit var registerButton: Button
 
-    @SuppressLint("SetTextI18n", "MissingInflatedId")
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
