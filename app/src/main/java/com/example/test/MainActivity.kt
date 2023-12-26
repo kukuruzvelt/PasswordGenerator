@@ -113,8 +113,9 @@ class MainActivity : AppCompatActivity() {
                 val jsonObject: JSONObject = jsonArray.getJSONObject(i)
                 val name = jsonObject.getString("name")
                 val value = jsonObject.getString("value")
+                val id = jsonObject.getString("id")
 
-                val passwordItem = PasswordItem(name, value)
+                val passwordItem = PasswordItem(name, value, id)
                 passwordList.add(passwordItem)
             }
         } catch (e: Exception) {

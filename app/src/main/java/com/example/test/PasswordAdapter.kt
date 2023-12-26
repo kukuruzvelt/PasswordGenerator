@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.test.R
@@ -15,6 +16,7 @@ class PasswordAdapter(private val passwordItems: List<PasswordItem>) :
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val passwordTextView: TextView = itemView.findViewById(R.id.passwordTextView)
+        val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,6 +37,7 @@ class PasswordAdapter(private val passwordItems: List<PasswordItem>) :
             passwordItem.isPasswordVisible = !passwordItem.isPasswordVisible
             notifyItemChanged(position)
         }
+
         // Inside onBindViewHolder method of PasswordAdapter
         holder.passwordTextView.setOnLongClickListener {
             if (passwordItem.isPasswordVisible) {
@@ -47,6 +50,11 @@ class PasswordAdapter(private val passwordItems: List<PasswordItem>) :
                 // Password is not visible, do not copy
                 false
             }
+        }
+
+        holder.deleteButton.setOnClickListener {
+            // Add your delete logic here, e.g., remove the password item from the list and notify the adapter
+            onPasswordDelete(passwordItem)  // Assuming you have a function to handle deletion
         }
     }
 
@@ -67,5 +75,10 @@ class PasswordAdapter(private val passwordItems: List<PasswordItem>) :
 
         // Show a toast message
         Toast.makeText(context, "Password copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    // Placeholder for your delete logic
+    private fun onPasswordDelete(passwordItem: PasswordItem) {
+        // Implement your deletion logic here
     }
 }

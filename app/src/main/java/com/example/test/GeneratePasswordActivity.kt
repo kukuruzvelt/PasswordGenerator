@@ -47,6 +47,7 @@ class GeneratePasswordActivity : AppCompatActivity() {
         includeSpecialCharsCheckbox = findViewById(R.id.includeSpecialCharsCheckbox)
         generatePasswordButton = findViewById(R.id.generatePasswordButton)
 
+
         algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parentView: AdapterView<*>?,
@@ -62,9 +63,30 @@ class GeneratePasswordActivity : AppCompatActivity() {
             }
         }
 
+        passwordLengthSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                passwordLengthLabel.text = "Password Length: $progress"
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Optional: Called when the user starts touching the SeekBar
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Optional: Called when the user stops touching the SeekBar
+            }
+        })
+
         generatePasswordButton.setOnClickListener {
-            // Add logic to generate password based on selected options
-            generatePassword()
+            val passwordName = passwordNameEditText.text.toString()
+
+            if (passwordName.isEmpty()) {
+                // Display an error message
+                textViewError.text = "Password name cannot be empty"
+            } else {
+                textViewError.text = ""
+                generatePassword()
+            }
         }
     }
 
@@ -105,7 +127,7 @@ class GeneratePasswordActivity : AppCompatActivity() {
     private fun generatePassword() {
         val passwordName = passwordNameEditText.text.toString()
         val passwordLength =
-            passwordLengthSeekBar.progress + 4 // Adjusted to match the range 4 to 50
+            passwordLengthSeekBar.progress // Adjusted to match the range 4 to 50
         val includeUppercase = includeUppercaseCheckbox.isChecked
         val includeLowercase = includeLowercaseCheckbox.isChecked
         val includeNumbers = includeNumbersCheckbox.isChecked
