@@ -89,21 +89,22 @@ class LoginActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.IO) {
 
                 val response = client.newCall(request).execute()
+                val responseBody = response.body()?.string()
+                val json = JSONObject(responseBody)
 
                 if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
 
                     if (!responseBody.isNullOrBlank()) {
-                        val json = JSONObject(responseBody)
+
                         val token = json.getString("token")
 
                         saveToken(token)
                         navigateToMainActivity()
                     } else {
-                        errorEditText.text = "No response "
+                        errorEditText.text = json.getString("message")
                     }
                 } else {
-                    errorEditText.text = "Error response"
+                    errorEditText.text = json.getString("message")
                 }
             }
         } catch (e: IOException) {

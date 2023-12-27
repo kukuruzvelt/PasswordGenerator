@@ -18,6 +18,7 @@ import okhttp3.RequestBody
 import org.json.JSONObject
 import java.io.IOException
 import android.util.Log
+import kotlinx.coroutines.MainScope
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -82,18 +83,15 @@ class RegisterActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.IO) {
 
                 val response = client.newCall(request).execute()
-
-                Log.v("Yag", "RESPONSE")
-                Log.v("Yag", "RESPONSE")
-                Log.v("Yag", "RESPONSE")
-                Log.v("Yag", "RESPONSE")
-                Log.v("Yag", "RESPONSE")
-                Log.v("Yag", response.toString())
+                val responseBody = response.body()?.string()
+                val json = JSONObject(responseBody)
 
                 if (response.isSuccessful) {
                     navigateToLoginActivity()
                 } else {
-                    errorEditText.text = "Error response"
+                    MainScope().launch {
+                        errorEditText.text = json.getJSONArray("violations").getJSONObject(0).getString("message")
+                    }
                 }
             }
         } catch (e: IOException) {

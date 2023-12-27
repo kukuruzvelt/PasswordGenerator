@@ -2,18 +2,15 @@ package com.example.test
 
 import PasswordAdapter
 import PasswordItem
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -43,17 +40,22 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             var passwordList = getPasswords()
+            if (passwordList.isEmpty()){
+                errorEditText.text = "You have no passwords saved"
+            }
+            else{
+                errorEditText.text = ""
+            }
 
             val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
             val layoutManager =
                 LinearLayoutManager(this@MainActivity) // Replace with your actual activity name
             recyclerView.layoutManager = layoutManager
 
-            val adapter = PasswordAdapter(passwordList)
+            val adapter = getAccessToken()?.let { PasswordAdapter(passwordList.toMutableList(), it) }
             recyclerView.adapter = adapter
         }
     }
-
 
     private suspend fun getPasswords(): List<PasswordItem> {
         val url = "http://10.0.2.2:8000/api/get-password-list"
@@ -88,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                     if (!responseBody.isNullOrBlank()) {
                         convertJsonToPasswordList(responseBody)
                     } else {
-                        errorEditText.text = "You have no passwords saved"
                         emptyList()
                     }
                 } else {
