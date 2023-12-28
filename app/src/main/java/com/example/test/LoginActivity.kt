@@ -64,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun makeLoginRequest(username: String, password: String) {
-        val url = "http://10.0.2.2:8000/login"
+        val url = "http://10.0.2.2/login"
 
         val connectTimeout = 30000L // 30 seconds
         val readTimeout = 30000L // 30 seconds

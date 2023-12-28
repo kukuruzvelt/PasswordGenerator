@@ -55,7 +55,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun makeRegisterRequest(username: String, password: String) {
-        val url = "http://10.0.2.2:8000/api/register"
+        val url = "http://10.0.2.2/api/register"
 
         val connectTimeout = 30000L // 30 seconds
         val readTimeout = 30000L // 30 seconds

@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getPasswords(): List<PasswordItem> {
-        val url = "http://10.0.2.2:8000/api/get-password-list"
+        val url = "http://10.0.2.2/api/get-password-list"
 
         val connectTimeout = 30000L // 30 seconds
         val readTimeout = 30000L // 30 seconds

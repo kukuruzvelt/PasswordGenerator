@@ -153,7 +153,7 @@ class GeneratePasswordActivity : AppCompatActivity() {
         val includeNumbers = includeNumbersCheckbox.isChecked
         val includeSpecialChars = includeSpecialCharsCheckbox.isChecked
 
-        val url = "http://10.0.2.2:8000/api/create-password"
+        val url = "http://10.0.2.2/api/create-password"
 
         val connectTimeout = 30000L // 30 seconds
         val readTimeout = 30000L // 30 seconds
