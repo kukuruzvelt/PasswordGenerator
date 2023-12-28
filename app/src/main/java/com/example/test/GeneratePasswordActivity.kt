@@ -52,6 +52,21 @@ class GeneratePasswordActivity : AppCompatActivity() {
         includeSpecialCharsCheckbox = findViewById(R.id.includeSpecialCharsCheckbox)
         generatePasswordButton = findViewById(R.id.generatePasswordButton)
 
+        includeUppercaseCheckbox.isChecked = true
+
+        includeUppercaseCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+            } else {
+                includeLowercaseCheckbox.isChecked = true
+            }
+        }
+
+        includeLowercaseCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+            } else {
+                includeUppercaseCheckbox.isChecked = true
+            }
+        }
 
         algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
