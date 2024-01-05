@@ -90,7 +90,13 @@ class RegisterActivity : AppCompatActivity() {
                     navigateToLoginActivity()
                 } else {
                     MainScope().launch {
-                        errorEditText.text = json.getJSONArray("violations").getJSONObject(0).getString("message")
+                        try{
+                            errorEditText.text = json.getJSONArray("violations").getJSONObject(0).getString("message")
+                        }
+                        catch (e: Exception){
+                            Log.v("a", json.toString())
+                            errorEditText.text = json.getString("detail")
+                        }
                     }
                 }
             }
